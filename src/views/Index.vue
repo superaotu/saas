@@ -92,8 +92,14 @@
 </template>
 
 <script setup lang="ts">
-import { Chart, registerAnimation, Util } from "@antv/g2";
-import { login, getClassList, getActiveList, getScoreList } from "../api";
+import { Chart, registerAnimation } from "@antv/g2";
+import {
+  //   login,
+  getClassList,
+  getActiveList,
+  getScoreList,
+  getGroupScoreList,
+} from "../api";
 
 const barLoading = ref(false); // 条形图加载
 const lineLoading = ref(false); // 折线图加载
@@ -106,6 +112,8 @@ const classes = ref({ value: "74784084", label: "22级大数据高考三班" });
 const classesPlaceholder = ref("请选择班级");
 
 const activeId = ref("3000065765202"); // 活动ID
+// const activeId = ref("6000066905426"); // 活动ID
+
 const active = ref({ value: "", label: "" });
 const activePlaceholder = ref("请选择活动");
 // const courseData = ref([{ value: "", label: "" }]); // 课程信息
@@ -113,8 +121,9 @@ const classesData = ref([{ value: "", label: "" }]); // 班级信息
 const activeData = ref([{ value: "", label: "" }]); // 活动信息
 // @ts-ignore
 const scoreData = ref([]); // 分数信息
-
 const chatData: any[] = []; // 图表数据
+
+const groupScoreData: any[] = []; // 分组分数信息
 
 // 获取班级信息
 function getAllClasses() {
@@ -179,6 +188,27 @@ function getAllScore() {
     } else {
       barLoading.value = true;
     }
+  });
+}
+
+// 获取分组分数
+function getGroupScore() {
+  getGroupScoreList({ activeId: activeId.value }).then((res) => {
+    console.log(res.data);
+    if (res.data.length > 0) {
+      const rd = res.data;
+      for (var i = 0; i < rd.length; i++) {
+        groupScoreData.push({
+          groupname: rd[i].groupname,
+          taskScore: rd[i].taskScore == null ? 0 : rd[i].taskScore,
+        });
+      }
+      // 画折线图图
+      lineChartInit();
+      // 画饼图
+      pieChartInit();
+    }
+    // groupScoreData = res.data;
   });
 }
 
@@ -354,149 +384,105 @@ function barChartInit() {
 
 // 画折线图
 function lineChartInit() {
-  // 默认已经加载 legend-filter 交互
   const data = [
-    { month: "Jan", city: "Tokyo", temperature: 7 },
-    { month: "Jan", city: "London", temperature: 3.9 },
-    { month: "Feb", city: "Tokyo", temperature: 6.9 },
-    { month: "Feb", city: "London", temperature: 4.2 },
-    { month: "Mar", city: "Tokyo", temperature: 9.5 },
-    { month: "Mar", city: "London", temperature: 5.7 },
-    { month: "Apr", city: "Tokyo", temperature: 14.5 },
-    { month: "Apr", city: "London", temperature: 8.5 },
-    { month: "May", city: "Tokyo", temperature: 18.4 },
-    { month: "May", city: "London", temperature: 11.9 },
-    { month: "Jun", city: "Tokyo", temperature: 21.5 },
-    { month: "Jun", city: "London", temperature: 15.2 },
-    { month: "Jul", city: "Tokyo", temperature: 25.2 },
-    { month: "Jul", city: "London", temperature: 17 },
-    { month: "Aug", city: "Tokyo", temperature: 26.5 },
-    { month: "Aug", city: "London", temperature: 16.6 },
-    { month: "Sep", city: "Tokyo", temperature: 23.3 },
-    { month: "Sep", city: "London", temperature: 14.2 },
-    { month: "Oct", city: "Tokyo", temperature: 18.3 },
-    { month: "Oct", city: "London", temperature: 10.3 },
-    { month: "Nov", city: "Tokyo", temperature: 13.9 },
-    { month: "Nov", city: "London", temperature: 6.6 },
-    { month: "Dec", city: "Tokyo", temperature: 9.6 },
-    { month: "Dec", city: "London", temperature: 4.8 },
+    { groupname: "分组一", value: 3 },
+    { groupname: "分组二", value: 4 },
+    { groupname: "分组三", value: 3 },
+    { groupname: "分组四", value: 5 },
+    { groupname: "分组五", value: 4 },
+    { groupname: "分组六", value: 6 },
+    { groupname: "分组七", value: 7 },
+    { groupname: "分组八", value: 9 },
+    { groupname: "分组九", value: 13 },
   ];
-
+  //   for (var i = 0; i < groupScoreData.length; i++) {
+  //     data.push({
+  //       groupName: groupScoreData[i].groupname,
+  //       value: Math.floor(Math.random() * 10),
+  //     });
+  //   }
   const chart = new Chart({
     container: "line-chart",
     autoFit: true,
-    height: 220,
-    // padding: [20],
+    height: 300,
   });
 
   chart.data(data);
   chart.scale({
-    month: {
+    year: {
       range: [0, 1],
     },
-    temperature: {
+    value: {
+      min: 0,
       nice: true,
     },
   });
 
   chart.tooltip({
-    showCrosshairs: true,
+    showCrosshairs: true, // 展示 Tooltip 辅助线
     shared: true,
   });
 
-  chart.axis("temperature", {
-    label: {
-      formatter: (val) => {
-        // return val + "次";
-        return val;
-      },
-    },
-  });
-
-  chart.line().position("month*temperature").color("city").shape("smooth");
-
-  chart
-    .point()
-    .position("month*temperature")
-    .color("city")
-    .shape("circle")
-    .style({
-      stroke: "#fff",
-      lineWidth: 1,
-    });
+  chart.line().position("groupname*value").label("value");
+  chart.point().position("groupname*value");
 
   chart.render();
 }
 
 // 画饼图
 function pieChartInit() {
-  const data = [
-    { type: "一组", value: 0.19 },
-    { type: "二组", value: 0.21 },
-    { type: "三组", value: 0.27 },
-    { type: "四组", value: 0.33 },
-  ];
   const chart = new Chart({
     container: "pie-chart",
     autoFit: true,
     height: 300,
-    // padding: [20],
   });
-  chart.data(data);
 
   chart.coordinate("theta", {
     radius: 0.75,
   });
+
+  chart.data(groupScoreData);
+
   chart.tooltip({
+    showTitle: false,
     showMarkers: false,
   });
-  // @ts-ignore
-  const interval = chart
+
+  chart
     .interval()
-    .adjust("stack")
-    .position("value")
-    .color("type", ["#063d8a", "#1770d6", "#47abfc", "#38c060"])
-    .style({ opacity: 0.4 })
-    .state({
-      active: {
-        style: (element) => {
-          const shape = element.shape;
-          return {
-            matrix: Util.zoom(shape, 1.1),
-          };
+    .position("taskScore")
+    .color("groupname")
+    .label("groupname*taskScore", {
+      layout: [
+        { type: "pie-spider" },
+        {
+          type: "limit-in-plot",
+          cfg: { action: "ellipsis" /** 或 translate */ },
+        },
+      ],
+      labelHeight: 20,
+      content: (obj) => `${obj.groupname} (${obj.taskScore})`,
+      labelLine: {
+        style: {
+          lineWidth: 0.5,
         },
       },
     })
-    .label("type", (val) => {
-      const opacity = val === "四线及以下" ? 1 : 0.5;
-      return {
-        offset: -30,
-        style: {
-          opacity,
-          fill: "white",
-          fontSize: 12,
-          shadowBlur: 2,
-          shadowColor: "rgba(0, 0, 0, .45)",
-        },
-        content: (obj) => {
-          return obj.type + "\n" + obj.value + "%";
-        },
-      };
-    });
-
-  chart.interaction("element-single-selected");
+    .adjust("stack");
+  chart.interaction("element-active");
   chart.render();
 }
 
 onMounted(async () => {
   // barChartInit();
   getAllClasses();
-  login({}).then((res) => {
-    console.log(res);
-  });
+  //   login({}).then((res) => {
+  //     console.log(res);
+  //   });
   getAllActive({ courseId: courseId.value, jclassId: classes.value.value });
+  getGroupScore();
   // getAllScore({ activeId: "3000065765202" });
-  lineChartInit();
-  pieChartInit();
+  //   lineChartInit();
+  //   pieChartInit();
 });
 </script>
