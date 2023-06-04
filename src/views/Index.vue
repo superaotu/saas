@@ -41,13 +41,8 @@
               </a-select-option>
             </a-select>
           </a-form-item>
-          <a-button
-            size="small"
-            type="primary"
-            ghost
-            icon="search"
-            @click="getAllScore()"
-            >查询</a-button
+          <a-button size="small" type="primary" ghost @click="getAllScore()"
+            ><SearchOutlined />查询</a-button
           >
           <div style="height: 480px">
             <a-skeleton
@@ -92,6 +87,7 @@
 </template>
 
 <script setup lang="ts">
+import { SearchOutlined } from "@ant-design/icons-vue";
 import { Chart, registerAnimation } from "@antv/g2";
 import {
   //   login,
