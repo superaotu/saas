@@ -60,7 +60,7 @@
       >
     </template> -->
     </page-container>
-    <div style="height: calc(100vh - 200px)">
+    <div>
       <a-row :gutter="24">
         <a-col :xl="16" :lg="24" :md="24" :sm="24" :xs="24">
           <a-card
@@ -170,16 +170,16 @@ import {
   getGroupScoreList,
 } from "../api";
 
-const barLoading = ref(true); // 条形图加载
-const lineLoading = ref(true); // 折线图加载
-const pieLoading = ref(true); // 饼图加载
+const barLoading = ref(false); // 条形图加载
+const lineLoading = ref(false); // 折线图加载
+const pieLoading = ref(false); // 饼图加载
 
 // const barChart:any;
 // const lineChart:any;
 // const pieChart:any;
 
-// const courseId = ref("231182970"); //课程ID
-const courseId = ref("234933541"); //课程ID
+const courseId = ref("231182970"); //课程ID
+// const courseId = ref("234933541"); //课程ID
 
 const classId = ref(""); // 班级ID
 const classes = ref({ value: "74784084", label: "22级大数据高考三班" });
@@ -248,7 +248,7 @@ function activeChange($event: any) {
 
 // 获取个人分数信息
 function getAllScore(param: any) {
-  barLoading.value = true;
+  // barLoading.value = true;
   getScoreList(param).then((res) => {
     if (res.data.length > 0) {
       scoreData.value = res.data;
@@ -264,15 +264,15 @@ function getAllScore(param: any) {
       }
       barLoading.value = false;
     } else {
-      barLoading.value = true;
+      // barLoading.value = true;
     }
   });
 }
 
 // 获取分组分数
 function getGroupScore() {
-  lineLoading.value = true;
-  pieLoading.value = true;
+  // lineLoading.value = true;
+  // pieLoading.value = true;
   getGroupScoreList({ activeId: activeId.value }).then((res) => {
     // console.log(res.data);
     if (res.data.length > 0) {
@@ -286,8 +286,8 @@ function getGroupScore() {
       lineLoading.value = false;
       pieLoading.value = false;
     } else {
-      lineLoading.value = true;
-      pieLoading.value = true;
+      // lineLoading.value = true;
+      // pieLoading.value = true;
     }
   });
 }
