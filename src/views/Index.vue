@@ -1,10 +1,10 @@
 <template>
   <div>
-    <a-row :gutter="24">
-      <a-col :xl="16" :lg="24" :md="24" :sm="24" :xs="24">
-        <a-card :loading="barLoading" title="个人得分" :bordered="false">
-          <a-form-item label="班级">
-            <a-select
+    <page-container style="padding: 10px">
+      <template #content>
+        <a-descriptions size="small" :column="1">
+          <a-descriptions-item label="班级"
+            ><a-select
               v-model:value="classes.value"
               :default-value="classes.label"
               :key="classes.label"
@@ -19,9 +19,9 @@
               >
                 {{ item.label }}
               </a-select-option>
-            </a-select>
-          </a-form-item>
-          <a-form-item label="活动">
+            </a-select></a-descriptions-item
+          >
+          <a-descriptions-item label="活动">
             <a-select
               v-model:value="active.value"
               :default-value="active.label"
@@ -40,68 +40,146 @@
                 {{ item.label }}
               </a-select-option>
             </a-select>
-          </a-form-item>
-          <a-button size="small" type="primary" ghost @click="getAllScore()"
-            ><SearchOutlined />查询</a-button
-          >
-          <div style="height: 480px">
-            <a-skeleton
-              :loading="barLoading"
-              active
-              :title="false"
-              :paragraph="{ rows: 10 }"
-            ></a-skeleton>
-            <div id="bar-chart"></div>
-          </div>
-        </a-card>
-      </a-col>
-      <a-col
-        style="padding: 0 12px"
-        :xl="8"
-        :lg="24"
-        :md="24"
-        :sm="24"
-        :xs="24"
+          </a-descriptions-item>
+          <a-descriptions-item>
+            <a-button size="small" type="primary" ghost @click="query()">
+              <SearchOutlined />
+              查询
+            </a-button>
+          </a-descriptions-item>
+          <!-- <a-descriptions-item label="创建时间">2017-01-10</a-descriptions-item>
+        <a-descriptions-item label="更新时间">2017-10-10</a-descriptions-item>
+        <a-descriptions-item label="备注"
+          >中国浙江省杭州市西湖区古翠路</a-descriptions-item
+        > -->
+        </a-descriptions>
+      </template>
+      <!-- <template #extra>
+      <a-button size="small" type="primary" ghost @click="getAllScore()"
+        ><SearchOutlined />查询</a-button
       >
-        <a-card
-          title="小组活动次数"
-          :loading="lineLoading"
-          style="margin-bottom: 24px"
-          :bordered="false"
-          :body-style="{ padding: 0 }"
+    </template> -->
+    </page-container>
+    <div style="height: calc(100vh - 200px)">
+      <a-row :gutter="24">
+        <a-col :xl="16" :lg="24" :md="24" :sm="24" :xs="24">
+          <a-card
+            :loading="barLoading"
+            title="个人得分"
+            :bordered="false"
+            :body-style="{ minHeight: 480 }"
+          >
+            <!-- <a-form-item label="班级">
+              <a-select
+                v-model:value="classes.value"
+                :default-value="classes.label"
+                :key="classes.label"
+                :placeholder="classesPlaceholder"
+                style="width: 100%"
+                @change="classesChange($event)"
+              >
+                <a-select-option
+                  v-for="item in classesData"
+                  :key="item.label"
+                  :value="item.value"
+                >
+                  {{ item.label }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item label="活动">
+              <a-select
+                v-model:value="active.value"
+                :default-value="active.label"
+                :key="active.label"
+                :placeholder="activePlaceholder"
+                style="width: 100%"
+                @change="activeChange($event)"
+              >
+                <a-select-option
+                  v-if="activeData.length > 0"
+                  v-for="item in activeData"
+                  :key="item.label"
+                  :value="item.value"
+                  label-in-value
+                >
+                  {{ item.label }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-button size="small" type="primary" ghost @click="getAllScore()"
+              ><SearchOutlined />查询</a-button
+            > -->
+            <div style="height: 480px">
+              <!--  <a-skeleton
+                :loading="barLoading"
+                active
+                :title="false"
+                :paragraph="{ rows: 10 }"
+              ></a-skeleton> -->
+              <div id="bar-chart"></div>
+            </div>
+          </a-card>
+        </a-col>
+        <a-col
+          style="padding: 0 12px"
+          :xl="8"
+          :lg="24"
+          :md="24"
+          :sm="24"
+          :xs="24"
         >
-          <div id="line-chart" style="padding: 10px"></div>
-        </a-card>
-        <a-card
-          title="小组得分"
-          style="margin-bottom: 24px"
-          :loading="pieLoading"
-          :bordered="false"
-          :body-style="{ padding: 0 }"
-        >
-          <div id="pie-chart"></div>
-        </a-card>
-      </a-col>
-    </a-row>
+          <a-card
+            title="小组活动次数"
+            :loading="lineLoading"
+            style="margin-bottom: 24px"
+            :bordered="false"
+            :body-style="{ padding: 0, minHeight: 300 }"
+          >
+            <div style="height: 300px">
+              <div id="line-chart" style="padding: 10px"></div>
+            </div>
+          </a-card>
+          <a-card
+            title="小组得分"
+            style="margin-bottom: 24px"
+            :loading="pieLoading"
+            :bordered="false"
+            :body-style="{ padding: 0 }"
+          >
+            <div style="height: 300px">
+              <div id="pie-chart"></div>
+            </div>
+          </a-card>
+        </a-col>
+      </a-row>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
+import { PageContainer } from "@ant-design-vue/pro-layout";
 import { SearchOutlined } from "@ant-design/icons-vue";
 import { Chart, registerAnimation } from "@antv/g2";
 import {
-  //   login,
+  login,
   getClassList,
   getActiveList,
   getScoreList,
   getGroupScoreList,
 } from "../api";
 
-const barLoading = ref(false); // 条形图加载
-const lineLoading = ref(false); // 折线图加载
-const pieLoading = ref(false); // 饼图加载
+const barLoading = ref(true); // 条形图加载
+const lineLoading = ref(true); // 折线图加载
+const pieLoading = ref(true); // 饼图加载
 
-const courseId = ref("231182970"); //课程ID
+// const barChart:any;
+// const lineChart:any;
+// const pieChart:any;
+
+// const courseId = ref("231182970"); //课程ID
+const courseId = ref("234933541"); //课程ID
 
 const classId = ref(""); // 班级ID
 const classes = ref({ value: "74784084", label: "22级大数据高考三班" });
@@ -131,6 +209,7 @@ function getAllClasses() {
     classesData.value = arr;
     classes.value.label = classesData.value[0].label;
     classes.value.value = classesData.value[0].value;
+    classId.value = classesData.value[0].value;
   });
 }
 
@@ -138,6 +217,11 @@ function getAllClasses() {
 function classesChange($event: any) {
   console.log(`selected ${$event}`);
   classId.value = $event;
+  // 获取活动信息
+  getAllActive({
+    courseId: courseId.value,
+    jclassId: classId.value,
+  });
 }
 
 // 获取活动信息
@@ -146,11 +230,12 @@ function getAllActive(param: any) {
     if (res.data.length > 0) {
       let arr: any = [];
       Object.keys(res.data).forEach((key: string) => {
-        arr.push({ value: res.data[key], label: key });
+        arr.push({ value: res.data[key].id, label: res.data[key].name });
       });
       activeData.value = arr;
       active.value.label = activeData.value[0].label;
       active.value.value = activeData.value[0].value;
+      activeId.value = activeData.value[0].value;
     }
   });
 }
@@ -162,9 +247,8 @@ function activeChange($event: any) {
 }
 
 // 获取个人分数信息
-function getAllScore() {
+function getAllScore(param: any) {
   barLoading.value = true;
-  const param = { activeId: activeId.value };
   getScoreList(param).then((res) => {
     if (res.data.length > 0) {
       scoreData.value = res.data;
@@ -179,8 +263,6 @@ function getAllScore() {
         ]);
       }
       barLoading.value = false;
-      // 调用条形图
-      barChartInit();
     } else {
       barLoading.value = true;
     }
@@ -189,8 +271,10 @@ function getAllScore() {
 
 // 获取分组分数
 function getGroupScore() {
+  lineLoading.value = true;
+  pieLoading.value = true;
   getGroupScoreList({ activeId: activeId.value }).then((res) => {
-    console.log(res.data);
+    // console.log(res.data);
     if (res.data.length > 0) {
       const rd = res.data;
       for (var i = 0; i < rd.length; i++) {
@@ -199,13 +283,27 @@ function getGroupScore() {
           taskScore: rd[i].taskScore == null ? 0 : rd[i].taskScore,
         });
       }
-      // 画折线图图
-      lineChartInit();
-      // 画饼图
-      pieChartInit();
+      lineLoading.value = false;
+      pieLoading.value = false;
+    } else {
+      lineLoading.value = true;
+      pieLoading.value = true;
     }
-    // groupScoreData = res.data;
   });
+}
+
+// 查询
+function query() {
+  // 获取个人分数
+  getAllScore({ activeId: activeId.value, classId: classId.value });
+  // 画条形图
+  barChartInit();
+  // 获取分组分数
+  getGroupScore();
+  // 画折线图
+  lineChartInit();
+  // 画饼图
+  pieChartInit();
 }
 
 // 画条形图
@@ -281,6 +379,11 @@ function barChartInit() {
 
       function countUp() {
         if (count === 0) {
+          //   chart &&
+          //     document
+          //       .getElementById("bar-chart")
+          //       ?.querySelector("canvas")
+          //       ?.remove();
           chart = new Chart({
             container: "bar-chart",
             autoFit: true,
@@ -469,16 +572,21 @@ function pieChartInit() {
   chart.render();
 }
 
-onMounted(async () => {
+onMounted(() => {
   // barChartInit();
   getAllClasses();
-  //   login({}).then((res) => {
-  //     console.log(res);
-  //   });
-  getAllActive({ courseId: courseId.value, jclassId: classes.value.value });
-  getGroupScore();
+  login({}).then((res) => {
+    console.log(res);
+  });
+  //   getAllActive({ courseId: courseId.value, jclassId: classes.value.value });
+  //   getGroupScore();
   // getAllScore({ activeId: "3000065765202" });
   //   lineChartInit();
   //   pieChartInit();
 });
 </script>
+<style>
+.ant-page-header {
+  margin: 10px;
+}
+</style>
