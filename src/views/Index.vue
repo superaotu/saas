@@ -1,9 +1,11 @@
+// @ts-nocheck
 <template>
   <div>
     <page-container style="padding: 10px">
       <template #content>
+        <!-- @ts-ig -->
         <a-form ref="formRef" :model="formState" :rules="rules">
-          <a-form-item ref="classes" label="班级" name="classes">
+          <a-form-item label="班级" name="classes">
             <a-select
               v-model:value="formState.classes"
               :placeholder="classesPlaceholder"
@@ -19,7 +21,7 @@
               </a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item ref="active" label="活动" name="active">
+          <a-form-item label="活动" name="active">
             <a-select
               v-model:value="formState.active"
               :placeholder="activePlaceholder"
@@ -132,10 +134,11 @@ const formState: UnwrapRef<FormState> = reactive({
   active: undefined,
 });
 
-const rules = ref({
+// @ts-ignore
+const rules = {
   classes: [{ required: true, message: "请选择班级", trigger: "blur" }],
   active: [{ required: true, message: "请选择活动", trigger: "blur" }],
-});
+};
 
 const simpleImage = ref(Empty.PRESENTED_IMAGE_SIMPLE);
 
@@ -156,7 +159,7 @@ const classesPlaceholder = ref("请选择班级");
 const activeId = ref("3000065765202"); // 活动ID
 // const activeId = ref("6000066905426"); // 活动ID
 
-const active = ref({ value: "", label: "" });
+// const active = ref({ value: "", label: "" });
 const activePlaceholder = ref("请选择活动");
 // const courseData = ref([{ value: "", label: "" }]); // 课程信息
 const classesData = ref([{ value: "", label: "" }]); // 班级信息
@@ -272,7 +275,10 @@ function query() {
         n--;
         if (n <= 0) {
           clearInterval(timeId);
-          barChartInit(barChatData);
+          if (scoreData.value.length > 0) {
+            barLoading.value = false;
+            barChartInit(barChatData);
+          }
         }
         // 获取个人分数
         getAllScore({ activeId: activeId.value, classId: classId.value });

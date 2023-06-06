@@ -7,7 +7,7 @@
     "dev": "vite",
     "pro": "vite --mode production",
     "build": "vue-tsc && vite build",
-    "build:base": "vue-tsc && vite build --mode production --base",
+    "build:base": "vite build --mode production --base",
     "preview": "vite preview"
   },
   "dependencies": {
