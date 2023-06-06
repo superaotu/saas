@@ -2,7 +2,7 @@
  * @Author: 刘兴
  * @Date: 2023-05-21 21:07:25
  * @LastEditors: 刘兴
- * @LastEditTime: 2023-06-04 22:26:51
+ * @LastEditTime: 2023-06-06 21:02:56
  * @FilePath: /saas/src/App.vue
  * @Description: 布局
  * 
@@ -67,6 +67,10 @@ const layoutConfig = reactive({
 </script>
 
 <style>
+body {
+  height: 100%;
+  width: 100%;
+}
 .ant-pro-global-footer {
   margin: 10px 0 10px 0;
   padding: 0 16px;
