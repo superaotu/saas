@@ -72,21 +72,12 @@
           :sm="24"
           :xs="24"
         >
-          <a-card
-            title="小组活动次数"
-            :bordered="false"
-            :body-style="{ padding: 0 }"
-          >
+          <a-card title="小组活动次数" :bordered="false">
             <div style="height: 300px">
               <div id="line-chart" style="padding: 10px"></div>
             </div>
           </a-card>
-          <a-card
-            title="小组得分"
-            style="margin-top: 10px"
-            :bordered="false"
-            :body-style="{ padding: 0 }"
-          >
+          <a-card title="小组得分" style="margin-top: 10px" :bordered="false">
             <div style="height: 300px">
               <div id="pie-chart"></div>
             </div>
@@ -689,11 +680,15 @@ function barChartInit(data: object) {
         autoFit: true,
         height: 650,
         padding: [20, 60],
+        renderer: "svg",
       });
       // @ts-ignore
       barChart.data(handleData(Object.values(data)[count]));
       barChart.coordinate("rect").transpose();
       barChart.legend(false);
+      // barChart.legend("name", {
+      //   position: "bottom",
+      // });
       barChart.tooltip(true);
       barChart.axis("name", {
         animateOption: {
@@ -706,7 +701,7 @@ function barChartInit(data: object) {
           // textAlign: 'center',
           fontSize: 16,
           // shadowBlur: 2,
-          shadowColor: "rgba(0, 0, 0, .45)",
+          shadowColor: "#fff",
         },
       });
       // chart.annotation().text({
@@ -790,6 +785,7 @@ function lineChartInit(data: any) {
     container: "line-chart",
     autoFit: true,
     height: 280,
+    renderer: "svg",
   });
 
   lineChart.data(data);
@@ -799,7 +795,9 @@ function lineChartInit(data: any) {
     },
     value: {
       min: 0,
+      max: 100,
       nice: true,
+      alias: "活动次数",
     },
   });
 
@@ -820,6 +818,7 @@ function pieChartInit(data: any) {
     container: "pie-chart",
     autoFit: true,
     height: 300,
+    renderer: "svg",
   });
 
   pieChart.coordinate("theta", {
@@ -880,6 +879,12 @@ onMounted(() => {
 .ant-card-head {
   color: white;
 }
+.ant-card-body {
+  padding: 8px;
+}
+/* .ant-row {
+  background: #08183d;
+} */
 .ant-card-head-title {
   padding: 8px;
 }
