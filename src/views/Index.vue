@@ -1,4 +1,3 @@
-// @ts-nocheck
 <template>
   <div>
     <page-container style="padding: 10px">
@@ -44,7 +43,10 @@
               <SearchOutlined />
               查询
             </a-button>
-            <a-button style="margin-left: 10px" @click="reset"> 重置 </a-button>
+            <a-button style="margin-left: 10px" @click="reset">
+              <RedoOutlined />
+              重置
+            </a-button>
           </a-form-item>
         </a-form>
       </template>
@@ -57,8 +59,7 @@
             :bordered="false"
             :body-style="{ minHeight: 480 }"
           >
-            <div style="height: 480px">
-              <a-empty v-show="scoreData.length == 0" :image="simpleImage" />
+            <div style="height: 673px">
               <div id="bar-chart"></div>
             </div>
           </a-card>
@@ -77,11 +78,6 @@
             :body-style="{ padding: 0 }"
           >
             <div style="height: 300px">
-              <a-empty
-                v-show="lineChartData.length == 0"
-                :image="simpleImage"
-              />
-              <!-- <a-spin v-show="lineLoading" /> -->
               <div id="line-chart" style="padding: 10px"></div>
             </div>
           </a-card>
@@ -92,11 +88,6 @@
             :body-style="{ padding: 0 }"
           >
             <div style="height: 300px">
-              <a-empty
-                style="height: 100%"
-                v-show="groupScoreData.length == 0"
-                :image="simpleImage"
-              />
               <div id="pie-chart"></div>
             </div>
           </a-card>
@@ -111,9 +102,8 @@ import { UnwrapRef } from "vue";
 // @ts-ignore
 import { PageContainer } from "@ant-design-vue/pro-layout";
 import { ValidateErrorEntity } from "ant-design-vue/es/form/interface";
-import { SearchOutlined } from "@ant-design/icons-vue";
+import { SearchOutlined, RedoOutlined } from "@ant-design/icons-vue";
 import { Chart, registerAnimation } from "@antv/g2";
-import { Empty } from "ant-design-vue";
 import {
   // login,
   getClassList,
@@ -140,15 +130,331 @@ const rules = {
   active: [{ required: true, message: "请选择活动", trigger: "blur" }],
 };
 
-const simpleImage = ref(Empty.PRESENTED_IMAGE_SIMPLE);
+let barChart: any; // 条形图实例
+let lineChart: any; // 折线图实例
+let pieChart: any; // 饼图实例
 
-const barLoading = ref(false); // 条形图加载
-const lineLoading = ref(true); // 折线图加载
-const pieLoading = ref(false); // 饼图加载
+// 条形图默认数据
+const defaultBarChartData = {
+  "1": [
+    {
+      value: 0,
+      name: "冯江浪",
+    },
+    {
+      value: 0,
+      name: "柳俊杰",
+    },
+    {
+      value: 2,
+      name: "张珍诚",
+    },
+    {
+      value: 0,
+      name: "谭浩",
+    },
+    {
+      value: 0,
+      name: "梁敏",
+    },
+    {
+      value: 0,
+      name: "柳翠莲",
+    },
+    {
+      value: 0,
+      name: "孙超",
+    },
+    {
+      value: 0,
+      name: "汪志鹏",
+    },
+    {
+      value: 0,
+      name: "谭师杰",
+    },
+    {
+      value: 2,
+      name: "汪龙生",
+    },
+    {
+      value: 0,
+      name: "李银",
+    },
+    {
+      value: 0,
+      name: "武桂宇",
+    },
+    {
+      value: 0,
+      name: "温旭",
+    },
+    {
+      value: 0,
+      name: "杨亮",
+    },
+    {
+      value: 0,
+      name: "唐胜梅",
+    },
+  ],
+  "2": [
+    {
+      value: 0,
+      name: "冯江浪",
+    },
+    {
+      value: 0,
+      name: "柳俊杰",
+    },
+    {
+      value: 2,
+      name: "张珍诚",
+    },
+    {
+      value: 0,
+      name: "谭浩",
+    },
+    {
+      value: 0,
+      name: "梁敏",
+    },
+    {
+      value: 0,
+      name: "柳翠莲",
+    },
+    {
+      value: 0,
+      name: "孙超",
+    },
+    {
+      value: 0,
+      name: "汪志鹏",
+    },
+    {
+      value: 0,
+      name: "谭师杰",
+    },
+    {
+      value: 2,
+      name: "汪龙生",
+    },
+    {
+      value: 0,
+      name: "李银",
+    },
+    {
+      value: 0,
+      name: "武桂宇",
+    },
+    {
+      value: 0,
+      name: "温旭",
+    },
+    {
+      value: 0,
+      name: "杨亮",
+    },
+    {
+      value: 0,
+      name: "唐胜梅",
+    },
+  ],
+  "3": [
+    {
+      value: 0,
+      name: "冯江浪",
+    },
+    {
+      value: 0,
+      name: "柳俊杰",
+    },
+    {
+      value: 2,
+      name: "张珍诚",
+    },
+    {
+      value: 0,
+      name: "谭浩",
+    },
+    {
+      value: 0,
+      name: "梁敏",
+    },
+    {
+      value: 0,
+      name: "柳翠莲",
+    },
+    {
+      value: 0,
+      name: "孙超",
+    },
+    {
+      value: 0,
+      name: "汪志鹏",
+    },
+    {
+      value: 0,
+      name: "谭师杰",
+    },
+    {
+      value: 2,
+      name: "汪龙生",
+    },
+    {
+      value: 0,
+      name: "李银",
+    },
+    {
+      value: 0,
+      name: "武桂宇",
+    },
+    {
+      value: 0,
+      name: "温旭",
+    },
+    {
+      value: 0,
+      name: "杨亮",
+    },
+    {
+      value: 0,
+      name: "唐胜梅",
+    },
+  ],
+  "4": [
+    {
+      value: 0,
+      name: "冯江浪",
+    },
+    {
+      value: 0,
+      name: "柳俊杰",
+    },
+    {
+      value: 2,
+      name: "张珍诚",
+    },
+    {
+      value: 0,
+      name: "谭浩",
+    },
+    {
+      value: 0,
+      name: "梁敏",
+    },
+    {
+      value: 1,
+      name: "柳翠莲",
+    },
+    {
+      value: 2,
+      name: "孙超",
+    },
+    {
+      value: 4,
+      name: "汪志鹏",
+    },
+    {
+      value: 0,
+      name: "谭师杰",
+    },
+    {
+      value: 2,
+      name: "汪龙生",
+    },
+    {
+      value: 7,
+      name: "李银",
+    },
+    {
+      value: 1,
+      name: "武桂宇",
+    },
+    {
+      value: 4,
+      name: "温旭",
+    },
+    {
+      value: 3,
+      name: "杨亮",
+    },
+    {
+      value: 6,
+      name: "唐胜梅",
+    },
+  ],
+};
+const defaultLineChartData = [
+  {
+    groupname: "第一组",
+    value: 1,
+  },
+  {
+    groupname: "第二组",
+    value: 1,
+  },
+  {
+    groupname: "第三组",
+    value: 1,
+  },
 
-// const barChart:any;
-// const lineChart:any;
-// const pieChart:any;
+  {
+    groupname: "第四组",
+    value: 1,
+  },
+  {
+    groupname: "第五组",
+    value: 1,
+  },
+  {
+    groupname: "第六组",
+    value: 1,
+  },
+  {
+    groupname: "第七组",
+    value: 1,
+  },
+  {
+    groupname: "第八组",
+    value: 1,
+  },
+];
+// 饼图默认数据
+const defaultPieChartData = [
+  {
+    groupname: "第五组",
+    taskScore: null,
+  },
+  {
+    groupname: "第一组",
+    taskScore: 100,
+  },
+  {
+    groupname: "第三组",
+    taskScore: 94,
+  },
+  {
+    groupname: "第六组",
+    taskScore: 80,
+  },
+  {
+    groupname: "第七组",
+    taskScore: 80,
+  },
+  {
+    groupname: "第八组",
+    taskScore: 60,
+  },
+  {
+    groupname: "第二组",
+    taskScore: 1,
+  },
+  {
+    groupname: "第四组",
+    taskScore: 34,
+  },
+];
 
 // const courseId = ref("231182970"); //课程ID
 const courseId = ref("234933541"); //课程ID
@@ -168,8 +474,7 @@ const activeData = ref([{ value: "", label: "" }]); // 活动信息
 const scoreData = ref([]); // 分数信息
 const barChatData = {}; // 排名图数据
 const lineChartData: any[] = []; // 折线图数据
-
-const groupScoreData: any[] = []; // 分组分数信息
+let groupScoreData: any[] = []; // 分组分数信息
 
 // 获取班级信息
 function getAllClasses() {
@@ -232,32 +537,24 @@ function getAllScore(param: any) {
       t.value++;
       // @ts-ignore
       barChatData['"' + t.value + '"'] = d;
-      barLoading.value = false;
-    } else {
-      barLoading.value = true;
     }
   });
 }
 
 // 获取分组分数
 function getGroupScore() {
-  lineLoading.value = true;
-  pieLoading.value = true;
   getGroupScoreList({ activeId: activeId.value }).then((res) => {
     // console.log(res.data);
     if (res.data.length > 0) {
       const rd = res.data;
+      const d = [];
       for (var i = 0; i < rd.length; i++) {
-        groupScoreData.push({
+        d.push({
           groupname: rd[i].groupname,
           taskScore: rd[i].taskScore == null ? 0 : rd[i].taskScore,
         });
       }
-      lineLoading.value = false;
-      pieLoading.value = false;
-    } else {
-      lineLoading.value = true;
-      pieLoading.value = true;
+      groupScoreData = d;
     }
   });
 }
@@ -267,29 +564,38 @@ function query() {
   formRef.value
     .validate()
     .then(() => {
-      barLoading.value = true;
-      lineLoading.value = true;
-      pieLoading.value = true;
       var n = 10;
       var timeId = setInterval(function () {
         n--;
         if (n <= 0) {
           clearInterval(timeId);
-          if (scoreData.value.length > 0) {
-            barLoading.value = false;
-            barChartInit(barChatData);
-          }
         }
         // 获取个人分数
         getAllScore({ activeId: activeId.value, classId: classId.value });
-        console.log(barChatData);
-      }, 1000 * 10);
-      // 获取分组分数
-      getGroupScore();
-      // 画折线图
-      lineChartInit();
-      // 画饼图
-      pieChartInit();
+        // 获取分组分数
+        getGroupScore();
+        if (scoreData.value.length > 0) {
+          // 修改条形图数据
+          barChart.changeData(handleData(Object.values(barChatData)[0]));
+        }
+        if (groupScoreData.length > 0) {
+          for (var i = 0; i < groupScoreData.length; i++) {
+            lineChartData.push({
+              groupName: groupScoreData[i].groupname,
+              value: Math.floor(Math.random() * 10),
+            });
+          }
+          // 修改饼图数据
+          pieChart.changeData(groupScoreData);
+          // if (lineChartData.length > 0) {
+          //   // 修改折线图数据
+          //   lineChart.changeData(lineChartData);
+          // }
+        }
+        // console.log(barChatData);
+      }, 1000 * 5);
+      // 修改折线图数据
+      lineChart.changeData(defaultLineChartData);
     })
     .catch((error: ValidateErrorEntity<FormState>) => {
       console.log("error", error);
@@ -298,7 +604,22 @@ function query() {
 
 // 重置
 function reset() {
+  formState.active = undefined;
+  formState.classes = undefined;
   formRef.value.resetFields();
+  // 条形图恢复初始化状态
+  barChartInit(defaultBarChartData);
+  // 折线图恢复初始化状态
+  lineChartInit(defaultLineChartData);
+  // 饼图恢复初始化状态
+  pieChartInit(defaultPieChartData);
+}
+
+function handleData(source: any) {
+  source.sort((a: any, b: any) => {
+    return a.value - b.value;
+  });
+  return source;
 }
 
 // 画条形图
@@ -351,35 +672,41 @@ function barChartInit(data: object) {
     }, animateCfg);
   });
 
-  function handleData(source: any) {
-    source.sort((a: any, b: any) => {
-      return a.value - b.value;
-    });
-    return source;
-  }
+  // function handleData(source: any) {
+  //   source.sort((a: any, b: any) => {
+  //     return a.value - b.value;
+  //   });
+  //   return source;
+  // }
   let count = 0;
-  let chart: any;
+  // let chart: any;
   let interval: any;
 
   function countUp() {
     if (count === 0) {
-      chart = new Chart({
+      barChart = new Chart({
         container: "bar-chart",
         autoFit: true,
-        height: 480,
+        height: 650,
         padding: [20, 60],
       });
       // @ts-ignore
-      chart.data(handleData(Object.values(data)[count]));
-      chart.coordinate("rect").transpose();
-      chart.legend(false);
-      chart.tooltip(true);
-      chart.axis("name", {
+      barChart.data(handleData(Object.values(data)[count]));
+      barChart.coordinate("rect").transpose();
+      barChart.legend(false);
+      barChart.tooltip(true);
+      barChart.axis("name", {
         animateOption: {
           update: {
             duration: 1000,
             easing: "easeLinear",
           },
+        },
+        style: {
+          // textAlign: 'center',
+          fontSize: 16,
+          // shadowBlur: 2,
+          shadowColor: "rgba(0, 0, 0, .45)",
         },
       });
       // chart.annotation().text({
@@ -393,7 +720,7 @@ function barChartInit(data: object) {
       //   },
       //   animate: false,
       // });
-      chart
+      barChart
         .interval()
         .position("name*value")
         .color("name")
@@ -429,7 +756,7 @@ function barChartInit(data: object) {
           },
         });
 
-      chart.render();
+      barChart.render();
     } else {
       // chart.annotation().clear(true);
       // chart.annotation().text({
@@ -444,11 +771,9 @@ function barChartInit(data: object) {
       //   animate: false,
       // });
       // @ts-ignore
-      chart.changeData(handleData(Object.values(data)[count]));
+      barChart.changeData(handleData(Object.values(data)[count]));
     }
-
     ++count;
-
     if (count === Object.keys(data).length) {
       clearInterval(interval);
     }
@@ -460,37 +785,16 @@ function barChartInit(data: object) {
 }
 
 // 画折线图
-function lineChartInit() {
-  if (groupScoreData.length > 0) {
-    for (var i = 0; i < groupScoreData.length; i++) {
-      lineChartData.push({
-        groupName: groupScoreData[i].groupname,
-        value: Math.floor(Math.random() * 10),
-      });
-    }
-  } else {
-    lineChartData.push(
-      { groupname: "分组一", value: 3 },
-      { groupname: "分组二", value: 4 },
-      { groupname: "分组三", value: 3 },
-      { groupname: "分组四", value: 5 },
-      { groupname: "分组五", value: 4 },
-      { groupname: "分组六", value: 6 },
-      { groupname: "分组七", value: 7 },
-      { groupname: "分组八", value: 9 },
-      { groupname: "分组九", value: 13 }
-    );
-  }
-
-  const chart = new Chart({
+function lineChartInit(data: any) {
+  lineChart = new Chart({
     container: "line-chart",
     autoFit: true,
-    height: 300,
+    height: 280,
   });
 
-  chart.data(lineChartData);
-  chart.scale({
-    year: {
+  lineChart.data(data);
+  lineChart.scale({
+    groupname: {
       range: [0, 1],
     },
     value: {
@@ -499,37 +803,37 @@ function lineChartInit() {
     },
   });
 
-  chart.tooltip({
+  lineChart.tooltip({
     showCrosshairs: true, // 展示 Tooltip 辅助线
     shared: true,
   });
 
-  chart.line().position("groupname*value").label("value");
-  chart.point().position("groupname*value");
+  lineChart.line().position("groupname*value").label("value");
+  lineChart.point().position("groupname*value");
 
-  chart.render();
+  lineChart.render();
 }
 
 // 画饼图
-function pieChartInit() {
-  const chart = new Chart({
+function pieChartInit(data: any) {
+  pieChart = new Chart({
     container: "pie-chart",
     autoFit: true,
     height: 300,
   });
 
-  chart.coordinate("theta", {
+  pieChart.coordinate("theta", {
     radius: 0.75,
   });
 
-  chart.data(groupScoreData);
+  pieChart.data(data);
 
-  chart.tooltip({
+  pieChart.tooltip({
     showTitle: false,
     showMarkers: false,
   });
 
-  chart
+  pieChart
     .interval()
     .position("taskScore")
     .color("groupname")
@@ -542,6 +846,7 @@ function pieChartInit() {
         },
       ],
       labelHeight: 20,
+      // @ts-ignore
       content: (obj) => `${obj.groupname} (${obj.taskScore})`,
       labelLine: {
         style: {
@@ -550,25 +855,32 @@ function pieChartInit() {
       },
     })
     .adjust("stack");
-  chart.interaction("element-active");
-  chart.render();
+  pieChart.interaction("element-active");
+  pieChart.render();
 }
 
 onMounted(() => {
-  // barChartInit();
+  // 获取课程信息
   getAllClasses();
-  // login({}).then((res) => {
-  //   console.log(res);
-  // });
-  //   getAllActive({ courseId: courseId.value, jclassId: classes.value.value });
-  //   getGroupScore();
-  // getAllScore({ activeId: "3000065765202" });
-  //   lineChartInit();
-  //   pieChartInit();
+  // 初始化条形图
+  barChartInit(defaultBarChartData);
+  // 初始化折线图
+  lineChartInit(defaultLineChartData);
+  // 初始化饼图
+  pieChartInit(defaultPieChartData);
 });
 </script>
 <style>
 .ant-page-header {
   margin: 10px;
+}
+.ant-card {
+  background: #08183d;
+}
+.ant-card-head {
+  color: white;
+}
+.ant-card-head-title {
+  padding: 8px;
 }
 </style>
