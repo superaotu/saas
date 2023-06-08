@@ -599,11 +599,11 @@ function reset() {
   formState.classes = undefined;
   formRef.value.resetFields();
   // 条形图恢复初始化状态
-  barChartInit(defaultBarChartData);
+  barChart.changeData(defaultBarChartData);
   // 折线图恢复初始化状态
-  lineChartInit(defaultLineChartData);
+  lineChart.changeData(defaultLineChartData);
   // 饼图恢复初始化状态
-  pieChartInit(defaultPieChartData);
+  pieChart.changeData(defaultPieChartData);
 }
 
 function handleData(source: any) {
@@ -689,7 +689,10 @@ function barChartInit(data: object) {
       // barChart.legend("name", {
       //   position: "bottom",
       // });
-      barChart.tooltip(true);
+      barChart.tooltip({
+        showCrosshairs: true, // 展示 Tooltip 辅助线
+        shared: true,
+      });
       barChart.axis("name", {
         animateOption: {
           update: {
@@ -697,13 +700,23 @@ function barChartInit(data: object) {
             easing: "easeLinear",
           },
         },
-        style: {
-          // textAlign: 'center',
-          fontSize: 16,
-          // shadowBlur: 2,
-          shadowColor: "#fff",
+        label: {
+          style: {
+            fill: "#fff",
+            fontSize: 14,
+          },
         },
       });
+
+      barChart.axis("value", {
+        label: {
+          style: {
+            fill: "#fff",
+            fontSize: 12,
+          },
+        },
+      });
+
       // chart.annotation().text({
       //   position: ["95%", "90%"],
       //   content: Object.keys(data)[count],
@@ -737,6 +750,10 @@ function barChartInit(data: object) {
               },
             },
             offset: 5,
+            style: {
+              fill: "#fff",
+              fontSize: 14,
+            },
           };
           // }
         })
@@ -800,13 +817,37 @@ function lineChartInit(data: any) {
       alias: "活动次数",
     },
   });
+  lineChart.axis("groupname", {
+    label: {
+      style: {
+        fill: "#fff",
+        fontSize: 14,
+      },
+    },
+  });
+  lineChart.axis("value", {
+    label: {
+      style: {
+        fill: "#fff",
+        fontSize: 14,
+      },
+    },
+  });
 
   lineChart.tooltip({
     showCrosshairs: true, // 展示 Tooltip 辅助线
     shared: true,
   });
 
-  lineChart.line().position("groupname*value").label("value");
+  lineChart
+    .line()
+    .position("groupname*value")
+    .label("value", {
+      style: {
+        fill: "#fff",
+        fontSize: 14,
+      },
+    });
   lineChart.point().position("groupname*value");
 
   lineChart.render();
@@ -818,7 +859,7 @@ function pieChartInit(data: any) {
     container: "pie-chart",
     autoFit: true,
     height: 300,
-    renderer: "svg",
+    // renderer: "svg",
   });
 
   pieChart.coordinate("theta", {
@@ -827,10 +868,28 @@ function pieChartInit(data: any) {
 
   pieChart.data(data);
 
+  // pieChart.axis("taskScore", {
+  //   label: {
+  //     style: {
+  //       fill: "#fff",
+  //       fontSize: 14,
+  //     },
+  //   },
+  // });
+
   pieChart.tooltip({
-    showTitle: false,
+    showTitle: true,
     showMarkers: false,
   });
+
+  // pieChart.legend("groupname", {
+  //   itemValue: {
+  //     style: {
+  //       fill: "#fff",
+  //       fontSize: 14,
+  //     },
+  //   },
+  // });
 
   pieChart
     .interval()
@@ -841,7 +900,9 @@ function pieChartInit(data: any) {
         { type: "pie-spider" },
         {
           type: "limit-in-plot",
-          cfg: { action: "ellipsis" /** 或 translate */ },
+          cfg: {
+            action: "ellipsis" /** 或 translate */,
+          },
         },
       ],
       labelHeight: 20,
@@ -852,7 +913,19 @@ function pieChartInit(data: any) {
           lineWidth: 0.5,
         },
       },
+      style: {
+        fill: "#fff",
+        fontSize: 14,
+      },
     })
+
+    // @ts-ignore
+    // .tooltip("groupname*taskScore", (groupname, taskScore) => {
+    //   return {
+    //     name: "分数",
+    //     value: taskScore,
+    //   };
+    // })
     .adjust("stack");
   pieChart.interaction("element-active");
   pieChart.render();
